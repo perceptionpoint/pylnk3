@@ -1474,7 +1474,7 @@ class ExtraData(object):
 
 class Lnk(object):
     
-    def __init__(self, f=None):
+    def __init__(self, f=None, parse_extra_data=True):
         self.file = None
         if type(f) == str or type(f) == str:
             self.file = f
@@ -1502,7 +1502,7 @@ class Lnk(object):
         self.extra_data = None
         if f is not None:
             assert_lnk_signature(f)
-            self._parse_lnk_file(f)
+            self._parse_lnk_file(f, parse_extra_data)
         if self.file:
             f.close()
     
@@ -1529,7 +1529,7 @@ class Lnk(object):
         write_byte(low, lnk)
         write_byte(high, lnk)
 
-    def _parse_lnk_file(self, lnk):
+    def _parse_lnk_file(self, lnk, parse_extra_data=True):
         # SHELL_LINK_HEADER [LINKTARGET_IDLIST] [LINKINFO] [STRING_DATA] *EXTRA_DATA
 
         # SHELL_LINK_HEADER
@@ -1569,7 +1569,8 @@ class Lnk(object):
             self.icon = read_sized_string(lnk, self.link_flags.IsUnicode)
 
         # *EXTRA_DATA
-        self.extra_data = ExtraData(lnk)
+        if parse_extra_data:
+            self.extra_data = ExtraData(lnk)
 
     def save(self, f: Optional[Union[str, IOBase]] = None, force_ext=False):
         if f is None:
@@ -1764,8 +1765,8 @@ class Lnk(object):
 
 # ---- convenience functions
 
-def parse(lnk):
-    return Lnk(lnk)
+def parse(lnk, parse_extra_data=True):
+    return Lnk(lnk, parse_extra_data)
 
 
 def create(f=None):
